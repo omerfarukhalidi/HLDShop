@@ -1,1 +1,2 @@
-# HLD SHOP GEREKSİNİMLER
+# HLD SHOP
+## [GEREKSİNİMLER](docs/Gereksinim.md)
