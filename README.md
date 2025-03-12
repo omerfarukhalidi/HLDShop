@@ -1,1 +1,1 @@
-# HLDShop
+# HLD SHOP GEREKSİNİMLER
