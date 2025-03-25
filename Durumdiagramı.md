@@ -1,2 +1,2 @@
 # DURUM DİAGRAMI
-[Uploading Untitled Workspace.png…]()
+![durum diagramı](web/dygrm.png)
