@@ -1,2 +1,2 @@
 # DURUM DİAGRAMI
-![Uploading Untitled Workspace.png…]()
+[Uploading Untitled Workspace.png…]()
