@@ -1,4 +1,4 @@
-# DURUM DİAGRAMI
+# DURUM DİYAGRAMI
 
 
 
