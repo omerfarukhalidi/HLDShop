@@ -1,3 +1,3 @@
 # HLD SHOP
 ## [GEREKSİNİMLER](Gereksinim.md)
-## [DURUM DİAGRAMI](Durum diagramı.md)
+## [DURUM DİAGRAMI](Durumdiagramı.md)
