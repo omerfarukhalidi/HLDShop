@@ -1,2 +1,3 @@
 # DURUM SENARYOLARI
-[Use Case Şablon.docx](https://github.com/user-attachments/files/19493439/Use.Case.Sablon.docx)
+
+[Use Case Şablon.pdf](https://github.com/user-attachments/files/19493454/Use.Case.Sablon.pdf)
