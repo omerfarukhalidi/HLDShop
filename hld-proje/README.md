@@ -1,36 +1,100 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HLD Shop E-Ticaret Sitesi
 
-## Getting Started
+Modern ve kullanıcı dostu bir e-ticaret sitesi projesi.
 
-First, run the development server:
+## Özellikler
 
+- Responsive tasarım
+- Modern ve şık arayüz
+- Animasyonlu geçişler ve etkileşimler
+- Kullanıcı dostu navigasyon
+- Gelişmiş arama ve filtreleme
+- Sepet yönetimi
+- Sipariş takibi
+
+## Sayfalar
+
+1. Ana Sayfa (index.html)
+   - Kategori listesi
+   - Öne çıkan ürünler
+   - Arama çubuğu
+
+2. Giriş/Kayıt (pages/login.html, pages/register.html)
+   - Kullanıcı girişi
+   - Yeni üye kaydı
+
+3. Sepet (pages/cart.html)
+   - Ürün listesi
+   - Miktar güncelleme
+   - Toplam hesaplama
+
+4. Ödeme (pages/checkout.html)
+   - Teslimat bilgileri
+   - Ödeme seçenekleri
+   - Sipariş özeti
+
+5. Siparişlerim (pages/orders.html)
+   - Sipariş geçmişi
+   - Sipariş detayları
+   - Kargo takibi
+
+6. Arama (pages/search.html)
+   - Gelişmiş filtreleme
+   - Sıralama seçenekleri
+   - Ürün listesi
+
+## Teknolojiler
+
+- HTML5
+- CSS3
+- JavaScript (Vanilla)
+- Font Awesome (ikonlar)
+- Google Fonts
+
+## Kurulum
+
+1. Projeyi klonlayın:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/kullanici/hld-shop.git
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Proje dizinine gidin:
+```bash
+cd hld-shop
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Gerekli görselleri `assets` klasörüne ekleyin (README.md dosyasında belirtildiği gibi)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Projeyi bir web sunucusunda çalıştırın veya doğrudan tarayıcıda açın
 
-## Learn More
+## Geliştirme
 
-To learn more about Next.js, take a look at the following resources:
+- `index.html`: Ana sayfa
+- `styles.css`: Ana stil dosyası
+- `script.js`: Ana JavaScript dosyası
+- `pages/`: Diğer sayfalar
+- `assets/`: Görseller ve medya dosyaları
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Vercel Deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Vercel hesabı oluşturun
+2. GitHub reponuzu Vercel'e bağlayın
+3. Otomatik deployment için ayarları yapılandırın
 
-## Deploy on Vercel
+## Katkıda Bulunma
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Fork yapın
+2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
+3. Değişikliklerinizi commit edin (`git commit -m 'Add some amazing feature'`)
+4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
+5. Pull Request oluşturun
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Lisans
+
+Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için `LICENSE` dosyasına bakın.
+
+## İletişim
+
+Proje Sahibi - [@twitter_handle](https://twitter.com/twitter_handle)
+
+Proje Linki: [https://github.com/kullanici/hld-shop](https://github.com/kullanici/hld-shop) 

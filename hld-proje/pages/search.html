@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arama Sonuçları - HLD Shop</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .search-container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 2rem;
+        }
+
+        .search-header {
+            margin-bottom: 2rem;
+        }
+
+        .search-header h2 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .search-stats {
+            color: #7f8c8d;
+        }
+
+        .filters {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .filter-group {
+            margin-bottom: 1rem;
+        }
+
+        .filter-group h3 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .filter-option {
+            padding: 0.5rem 1rem;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-option:hover {
+            background: #e0e0e0;
+        }
+
+        .filter-option.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+
+        .search-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .product-card h3 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-card .price {
+            color: #e74c3c;
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .add-to-cart {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .add-to-cart:hover {
+            background-color: #2980b9;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: #7f8c8d;
+        }
+
+        .no-results i {
+            font-size: 4rem;
+            color: #e0e0e0;
+            margin-bottom: 1rem;
+        }
+
+        .sort-options {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 2rem;
+        }
+
+        .sort-select {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            color: #2c3e50;
+            cursor: pointer;
+        }
+
+        .sort-select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <h1><a href="../index.html" style="text-decoration: none; color: inherit;">HLD Shop</a></h1>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Search Content -->
+    <div class="search-container">
+        <div class="search-header">
+            <h2>Arama Sonuçları</h2>
+            <p class="search-stats">"telefon" için 24 sonuç bulundu</p>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <h3>Kategoriler</h3>
+                <div class="filter-options">
+                    <div class="filter-option active">Tümü</div>
+                    <div class="filter-option">Elektronik</div>
+                    <div class="filter-option">Telefon</div>
+                    <div class="filter-option">Aksesuar</div>
+                </div>
+            </div>
+            <div class="filter-group">
+                <h3>Fiyat Aralığı</h3>
+                <div class="filter-options">
+                    <div class="filter-option">0 - 1000 TL</div>
+                    <div class="filter-option">1000 - 5000 TL</div>
+                    <div class="filter-option">5000 - 10000 TL</div>
+                    <div class="filter-option">10000 TL ve üzeri</div>
+                </div>
+            </div>
+            <div class="filter-group">
+                <h3>Markalar</h3>
+                <div class="filter-options">
+                    <div class="filter-option">Apple</div>
+                    <div class="filter-option">Samsung</div>
+                    <div class="filter-option">Xiaomi</div>
+                    <div class="filter-option">Huawei</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sort-options">
+            <select class="sort-select">
+                <option value="popular">En Popüler</option>
+                <option value="price-asc">Fiyat (Düşükten Yükseğe)</option>
+                <option value="price-desc">Fiyat (Yüksekten Düşüğe)</option>
+                <option value="new">En Yeniler</option>
+            </select>
+        </div>
+
+        <div class="search-results">
+            <div class="product-card">
+                <img src="../assets/product1.jpg" alt="Ürün 1">
+                <h3>iPhone 13 Pro</h3>
+                <p class="price">42.999 TL</p>
+                <button class="add-to-cart">Sepete Ekle</button>
+            </div>
+            <div class="product-card">
+                <img src="../assets/product2.jpg" alt="Ürün 2">
+                <h3>Samsung Galaxy S21</h3>
+                <p class="price">32.999 TL</p>
+                <button class="add-to-cart">Sepete Ekle</button>
+            </div>
+            <div class="product-card">
+                <img src="../assets/product3.jpg" alt="Ürün 3">
+                <h3>Xiaomi Mi 11</h3>
+                <p class="price">22.999 TL</p>
+                <button class="add-to-cart">Sepete Ekle</button>
+            </div>
+            <div class="product-card">
+                <img src="../assets/product4.jpg" alt="Ürün 4">
+                <h3>Huawei P40 Pro</h3>
+                <p class="price">28.999 TL</p>
+                <button class="add-to-cart">Sepete Ekle</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Filtre seçenekleri
+        document.querySelectorAll('.filter-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const parent = this.parentElement;
+                parent.querySelectorAll('.filter-option').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+
+        // Sıralama değişikliği
+        document.querySelector('.sort-select').addEventListener('change', function() {
+            // Demo amaçlı alert
+            alert(`Sıralama değiştirildi: ${this.value}`);
+        });
+
+        // Sepete ekleme
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', function() {
+                const productName = this.closest('.product-card').querySelector('h3').textContent;
+                this.innerHTML = '<i class="fas fa-check"></i> Eklendi';
+                this.style.backgroundColor = '#27ae60';
+                
+                setTimeout(() => {
+                    this.innerHTML = 'Sepete Ekle';
+                    this.style.backgroundColor = '#3498db';
+                }, 2000);
+            });
+        });
+
+        // Sayfa yüklendiğinde animasyon
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.product-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html> 

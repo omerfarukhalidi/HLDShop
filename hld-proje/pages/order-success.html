@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sipariş Başarılı - HLD Shop</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .success-container {
+            max-width: 600px;
+            margin: 100px auto;
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            color: #27ae60;
+            margin-bottom: 1rem;
+            animation: scale 0.5s ease-in-out;
+        }
+
+        .success-title {
+            color: #2c3e50;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .success-message {
+            color: #7f8c8d;
+            margin-bottom: 2rem;
+        }
+
+        .order-details {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 5px;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .order-details h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            color: #7f8c8d;
+        }
+
+        .detail-row strong {
+            color: #2c3e50;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .action-btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .primary-btn {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .primary-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .secondary-btn {
+            background-color: #f8f9fa;
+            color: #2c3e50;
+            border: 2px solid #e0e0e0;
+        }
+
+        .secondary-btn:hover {
+            background-color: #e0e0e0;
+        }
+
+        @keyframes scale {
+            0% {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <h1><a href="../index.html" style="text-decoration: none; color: inherit;">HLD Shop</a></h1>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Success Content -->
+    <div class="success-container">
+        <i class="fas fa-check-circle success-icon"></i>
+        <h2 class="success-title">Siparişiniz Başarıyla Alındı!</h2>
+        <p class="success-message">Siparişiniz başarıyla oluşturuldu. Sipariş detaylarınız aşağıda yer almaktadır.</p>
+
+        <div class="order-details">
+            <h3>Sipariş Detayları</h3>
+            <div class="detail-row">
+                <span>Sipariş Numarası:</span>
+                <strong>#HLD123456</strong>
+            </div>
+            <div class="detail-row">
+                <span>Tarih:</span>
+                <strong>01.01.2024</strong>
+            </div>
+            <div class="detail-row">
+                <span>Toplam Tutar:</span>
+                <strong>37.998 TL</strong>
+            </div>
+            <div class="detail-row">
+                <span>Ödeme Yöntemi:</span>
+                <strong>Kredi Kartı</strong>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="action-btn primary-btn" onclick="window.location.href='orders.html'">
+                Siparişlerimi Görüntüle
+            </button>
+            <button class="action-btn secondary-btn" onclick="window.location.href='../index.html'">
+                Alışverişe Devam Et
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Sayfa yüklendiğinde animasyon
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.querySelector('.success-container');
+            container.style.opacity = '0';
+            container.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                container.style.transition = 'all 0.5s ease';
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0)';
+            }, 100);
+        });
+    </script>
+</body>
+</html> 
