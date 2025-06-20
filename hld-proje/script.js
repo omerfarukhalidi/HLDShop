@@ -57,4 +57,60 @@ document.addEventListener('DOMContentLoaded', () => {
             element.style.transform = 'translateY(0)';
         }, index * 100);
     });
-}); 
+});
+
+// Anasayfa ürünlerini veritabanından çek ve ekrana bas
+if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/' ) {
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch('http://localhost:3000/api/products')
+            .then(res => res.json())
+            .then(products => {
+                const grid = document.querySelector('.featured-products .product-grid');
+                if (!grid) return;
+                grid.innerHTML = '';
+                products.forEach(product => {
+                    const div = document.createElement('div');
+                    div.className = 'product-card';
+                    div.innerHTML = `
+                        <img src="${product.image}" alt="${product.name}">
+                        <h3>${product.name}</h3>
+                        <p class="price">${product.price.toLocaleString('tr-TR')} TL</p>
+                        <button class="add-to-cart">Sepete Ekle</button>
+                    `;
+                    grid.appendChild(div);
+                });
+            });
+    });
+}
+
+// Giriş yaptıysa nav'daki Giriş Yap ve Üye Ol butonlarını gizle
+function updateNavForLogin() {
+    const navLinks = document.querySelector('.nav-links');
+    if (!navLinks) return;
+    const loginLink = navLinks.querySelector('a[href="pages/login.html"]');
+    const registerLink = navLinks.querySelector('a[href="pages/register.html"]');
+    let logoutBtn = navLinks.querySelector('.logout-btn');
+    if (localStorage.getItem('loggedInUser')) {
+        if (loginLink) loginLink.style.display = 'none';
+        if (registerLink) registerLink.style.display = 'none';
+        if (!logoutBtn) {
+            logoutBtn = document.createElement('button');
+            logoutBtn.textContent = 'Çıkış Yap';
+            logoutBtn.className = 'logout-btn nav-link';
+            logoutBtn.style.background = 'none';
+            logoutBtn.style.border = 'none';
+            logoutBtn.style.cursor = 'pointer';
+            logoutBtn.onclick = function() {
+                localStorage.removeItem('loggedInUser');
+                location.reload();
+            };
+            navLinks.appendChild(logoutBtn);
+        }
+    } else {
+        if (loginLink) loginLink.style.display = '';
+        if (registerLink) registerLink.style.display = '';
+        if (logoutBtn) logoutBtn.remove();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', updateNavForLogin); 

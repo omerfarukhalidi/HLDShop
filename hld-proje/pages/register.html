@@ -116,10 +116,37 @@
     </div>
 
     <script>
-        document.getElementById('registerForm').addEventListener('submit', function(e) {
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            // Demo amaçlı direkt ana sayfaya yönlendirme
-            window.location.href = '../index.html';
+
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                alert('Şifreler uyuşmuyor!');
+                return;
+            }
+
+            // API'ye istek at
+            const response = await fetch('http://localhost:3000/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: email, // email'i kullanıcı adı olarak kaydediyoruz
+                    password: password
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert('Kayıt başarılı! Giriş sayfasına yönlendiriliyorsunuz.');
+                window.location.href = 'login.html';
+            } else {
+                alert(data.message || 'Kayıt sırasında hata oluştu.');
+            }
         });
     </script>
 </body>
