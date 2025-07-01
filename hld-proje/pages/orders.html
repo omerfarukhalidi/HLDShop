@@ -1,1 +1,145 @@
- 
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siparişlerim - HLD Shop</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .orders-container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        .orders-container h2 {
+            color: #2c3e50;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .order-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+        }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        .order-items {
+            margin-bottom: 1rem;
+        }
+        .order-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .order-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .order-item-details h4 {
+            margin: 0;
+            color: #2c3e50;
+        }
+        .order-item-details p {
+            margin: 0;
+            color: #7f8c8d;
+            font-size: 0.95rem;
+        }
+        .order-total {
+            font-weight: 600;
+            color: #e74c3c;
+            text-align: right;
+        }
+        .no-orders {
+            text-align: center;
+            color: #7f8c8d;
+            padding: 3rem 0;
+        }
+        .no-orders i {
+            font-size: 3rem;
+            color: #e0e0e0;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <h1><a href="../index.html" style="text-decoration: none; color: inherit;">HLD Shop</a></h1>
+            </div>
+        </nav>
+    </header>
+
+    <div class="orders-container">
+        <h2>Siparişlerim</h2>
+        <div id="userName" style="text-align:center; color:#2c3e50; margin-bottom:1rem;"></div>
+        <div id="ordersList"></div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        const user = localStorage.getItem('loggedInUser');
+        const ordersList = document.getElementById('ordersList');
+        const userNameDiv = document.getElementById('userName');
+        if (!user) {
+            ordersList.innerHTML = `<div class='no-orders'><i class='fas fa-user-lock'></i><br>Giriş yapmadan siparişlerinizi görüntüleyemezsiniz.</div>`;
+            return;
+        }
+        // Kullanıcı adını çek
+        try {
+            const userRes = await fetch(`http://localhost:3000/api/user/${encodeURIComponent(user)}`);
+            if (userRes.ok) {
+                const userData = await userRes.json();
+                userNameDiv.textContent = `Ad Soyad: ${userData.name || user}`;
+            }
+        } catch {}
+        try {
+            const res = await fetch(`http://localhost:3000/api/orders/${encodeURIComponent(user)}`);
+            const orders = await res.json();
+            if (!orders.length) {
+                ordersList.innerHTML = `<div class='no-orders'><i class='fas fa-box-open'></i><br>Henüz hiç siparişiniz yok.</div>`;
+                return;
+            }
+            ordersList.innerHTML = orders.map(order => `
+                <div class="order-card">
+                    <div class="order-header">
+                        <span><strong>Sipariş No:</strong> #${order.id || 'N/A'}</span>
+                        <span><strong>Tarih:</strong> ${order.date ? new Date(order.date).toLocaleString('tr-TR') : '-'}</span>
+                    </div>
+                    <div class="order-items">
+                        ${order.items.map(item => `
+                            <div class="order-item">
+                                <img src="${item.image}" alt="${item.name}">
+                                <div class="order-item-details">
+                                    <h4>${item.name}</h4>
+                                    <p>${item.price.toLocaleString('tr-TR')} TL</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="order-total">
+                        Toplam: ${order.items.reduce((sum, i) => sum + (i.price || 0), 0).toLocaleString('tr-TR')} TL
+                    </div>
+                </div>
+            `).join('');
+        } catch (err) {
+            ordersList.innerHTML = `<div class='no-orders'><i class='fas fa-exclamation-triangle'></i><br>Bir hata oluştu, lütfen tekrar deneyin.</div>`;
+        }
+    });
+    </script>
+</body>
+</html> 

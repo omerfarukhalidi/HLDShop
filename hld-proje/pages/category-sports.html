@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spor Ürünleri - HLD Shop</title>
+    <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <h1>HLD Shop</h1>
+            </div>
+            <div class="nav-links">
+                <a href="cart.html" class="nav-link">Sepet</a>
+                <a href="orders.html" class="nav-link" id="ordersLink" style="display:none">Siparişlerim</a>
+                <button id="logoutBtn" class="nav-link" style="background:none; border:none; cursor:pointer;">Çıkış Yap</button>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <h2>Spor Ürünleri</h2>
+        <div style="margin-bottom:1rem;">
+            <label for="sortSelect">Sırala: </label>
+            <select id="sortSelect">
+                <option value="price-asc">Fiyat (Ucuzdan Pahalı)</option>
+                <option value="price-desc">Fiyat (Pahalıdan Ucuza)</option>
+                <option value="name-asc">İsim (A-Z)</option>
+                <option value="name-desc">İsim (Z-A)</option>
+            </select>
+        </div>
+        <div id="product-list" class="product-grid"></div>
+    </main>
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>HLD Shop</h3>
+                <p>Modern ve güvenilir alışveriş deneyimi.</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 HLD Shop. Tüm hakları saklıdır.</p>
+        </div>
+    </footer>
+    <script src="../script.js"></script>
+    <script>
+    let productsCache = [];
+    function renderProducts(products) {
+        const list = document.getElementById('product-list');
+        if (products.length === 0) {
+            list.innerHTML = '<p>Bu kategoride ürün bulunamadı.</p>';
+        } else {
+            list.innerHTML = products.map(product => `
+                <div class="product-card" data-id="${product._id}">
+                  <img src="${product.image}" alt="${product.name}">
+                  <h3>${product.name}</h3>
+                  <p class="price">${product.price} TL</p>
+                  <button class="add-to-cart">Sepete Ekle</button>
+                </div>
+            `).join('');
+        }
+        if (window.setAddToCartListeners) setAddToCartListeners();
+    }
+    function sortAndRender() {
+        const sort = document.getElementById('sortSelect').value;
+        let sorted = [...productsCache];
+        if (sort === 'price-asc') sorted.sort((a,b) => a.price-b.price);
+        if (sort === 'price-desc') sorted.sort((a,b) => b.price-a.price);
+        if (sort === 'name-asc') sorted.sort((a,b) => a.name.localeCompare(b.name,'tr'));
+        if (sort === 'name-desc') sorted.sort((a,b) => b.name.localeCompare(a.name,'tr'));
+        renderProducts(sorted);
+    }
+    fetch('/api/products/category/sports')
+      .then(res => res.json())
+      .then(products => {
+        productsCache = products;
+        sortAndRender();
+      });
+    document.getElementById('sortSelect').addEventListener('change', sortAndRender);
+
+    document.getElementById('logoutBtn').onclick = function() {
+        localStorage.removeItem('loggedInUser');
+        localStorage.removeItem('token');
+        window.location.href = '../index.html';
+    };
+    </script>
+</body>
+</html> 

@@ -155,8 +155,25 @@
             margin-top: 2rem;
         }
 
-        .place-order-btn:hover {
+        .place-order-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .place-order-btn:hover:not(:disabled) {
             background-color: #2980b9;
+        }
+
+        .empty-cart {
+            text-align: center;
+            color: #7f8c8d;
+            padding: 3rem 0;
+        }
+
+        .empty-cart i {
+            font-size: 3rem;
+            color: #e0e0e0;
+            margin-bottom: 1rem;
         }
     </style>
 </head>
@@ -173,77 +190,51 @@
     <!-- Checkout Content -->
     <div class="checkout-container">
         <div class="checkout-form">
-            <div class="form-section">
-                <h3>Teslimat Bilgileri</h3>
-                <div class="form-group">
-                    <label for="fullName">Ad Soyad</label>
-                    <input type="text" id="fullName" required>
-                </div>
-                <div class="form-group">
-                    <label for="address">Adres</label>
-                    <input type="text" id="address" required>
-                </div>
-                <div class="form-row">
+            <form id="checkoutForm">
+                <div class="form-section">
+                    <h3>Teslimat Bilgileri</h3>
                     <div class="form-group">
-                        <label for="city">Şehir</label>
-                        <input type="text" id="city" required>
+                        <label for="fullName">Ad Soyad</label>
+                        <input type="text" id="fullName" required>
                     </div>
                     <div class="form-group">
-                        <label for="postalCode">Posta Kodu</label>
-                        <input type="text" id="postalCode" required>
+                        <label for="address">Adres</label>
+                        <input type="text" id="address" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city">Şehir</label>
+                            <input type="text" id="city" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="postalCode">Posta Kodu</label>
+                            <input type="text" id="postalCode" required>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="form-section">
-                <h3>İletişim Bilgileri</h3>
-                <div class="form-group">
-                    <label for="email">E-posta</label>
-                    <input type="email" id="email" required>
+                <div class="form-section">
+                    <h3>İletişim Bilgileri</h3>
+                    <div class="form-group">
+                        <label for="email">E-posta</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Telefon</label>
+                        <input type="tel" id="phone" required>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="phone">Telefon</label>
-                    <input type="tel" id="phone" required>
-                </div>
-            </div>
 
-            <div class="form-section">
-                <h3>Ödeme Yöntemi</h3>
-                <div class="payment-methods">
-                    <div class="payment-method">
-                        <i class="fas fa-credit-card"></i>
-                        <span>Kredi Kartı</span>
-                    </div>
-                    <div class="payment-method">
-                        <i class="fas fa-university"></i>
-                        <span>Havale/EFT</span>
-                    </div>
-                </div>
-            </div>
+                <button type="submit" class="place-order-btn" id="placeOrderBtn">Siparişi Tamamla</button>
+            </form>
         </div>
 
         <div class="order-summary">
             <h3>Sipariş Özeti</h3>
-            <div class="order-items">
-                <div class="order-item">
-                    <img src="../assets/product1.jpg" alt="Ürün 1">
-                    <div class="item-details">
-                        <h4>Akıllı Telefon</h4>
-                        <p class="item-price">12.999 TL</p>
-                    </div>
-                </div>
-                <div class="order-item">
-                    <img src="../assets/product2.jpg" alt="Ürün 2">
-                    <div class="item-details">
-                        <h4>Laptop</h4>
-                        <p class="item-price">24.999 TL</p>
-                    </div>
-                </div>
-            </div>
-
+            <div class="order-items" id="orderItems"></div>
             <div class="summary-row">
                 <span>Ara Toplam</span>
-                <span>37.998 TL</span>
+                <span id="subtotal">0 TL</span>
             </div>
             <div class="summary-row">
                 <span>Kargo</span>
@@ -251,29 +242,80 @@
             </div>
             <div class="summary-row total">
                 <span>Toplam</span>
-                <span>37.998 TL</span>
+                <span id="total">0 TL</span>
             </div>
-
-            <button class="place-order-btn">Siparişi Tamamla</button>
         </div>
     </div>
 
     <script>
-        // Ödeme yöntemi seçimi
-        document.querySelectorAll('.payment-method').forEach(method => {
-            method.addEventListener('click', function() {
-                document.querySelectorAll('.payment-method').forEach(m => {
-                    m.style.borderColor = '#e0e0e0';
-                });
-                this.style.borderColor = '#3498db';
-            });
-        });
+    const user = localStorage.getItem('loggedInUser');
+    const orderItemsDiv = document.getElementById('orderItems');
+    const subtotalSpan = document.getElementById('subtotal');
+    const totalSpan = document.getElementById('total');
+    const placeOrderBtn = document.getElementById('placeOrderBtn');
+    const checkoutForm = document.getElementById('checkoutForm');
 
-        // Sipariş tamamlama
-        document.querySelector('.place-order-btn').addEventListener('click', function() {
-            // Demo amaçlı başarılı sipariş sayfasına yönlendirme
-            window.location.href = 'order-success.html';
-        });
+    if (!user) {
+        orderItemsDiv.innerHTML = `<div class='empty-cart'><i class='fas fa-user-lock'></i><br>Giriş yapmadan ödeme yapamazsınız.</div>`;
+        placeOrderBtn.disabled = false;
+    } else {
+        loadOrderCart();
+    }
+
+    async function loadOrderCart() {
+        orderItemsDiv.innerHTML = '<div class="empty-cart">Yükleniyor...</div>';
+        try {
+            const res = await fetch(`http://localhost:3000/api/cart/${encodeURIComponent(user)}`);
+            const cart = await res.json();
+            if (!cart.length) {
+                orderItemsDiv.innerHTML = `<div class='empty-cart'><i class='fas fa-shopping-cart'></i><br>Sepetiniz boş.</div>`;
+                placeOrderBtn.disabled = false;
+                subtotalSpan.textContent = '0 TL';
+                totalSpan.textContent = '0 TL';
+                return;
+            }
+            orderItemsDiv.innerHTML = cart.map(item => `
+                <div class="order-item">
+                    <img src="${item.image}" alt="${item.name}">
+                    <div class="item-details">
+                        <h4>${item.name}</h4>
+                        <p class="item-price">${item.price.toLocaleString('tr-TR')} TL</p>
+                    </div>
+                </div>
+            `).join('');
+            let total = cart.reduce((sum, item) => sum + (item.price || 0), 0);
+            subtotalSpan.textContent = total.toLocaleString('tr-TR') + ' TL';
+            totalSpan.textContent = total.toLocaleString('tr-TR') + ' TL';
+            placeOrderBtn.disabled = false;
+        } catch (err) {
+            orderItemsDiv.innerHTML = `<div class='empty-cart'><i class='fas fa-exclamation-triangle'></i><br>Bir hata oluştu, lütfen tekrar deneyin.</div>`;
+            placeOrderBtn.disabled = false;
+        }
+    }
+
+    checkoutForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        if (!user) return;
+        placeOrderBtn.disabled = true;
+        placeOrderBtn.textContent = 'İşleniyor...';
+        try {
+            const res = await fetch(`http://localhost:3000/api/orders/${encodeURIComponent(user)}`, {
+                method: 'POST'
+            });
+            const data = await res.json();
+            if (res.ok) {
+                window.location.href = 'order-success.html';
+            } else {
+                alert(data.message || 'Sipariş oluşturulamadı.');
+                placeOrderBtn.disabled = false;
+                placeOrderBtn.textContent = 'Siparişi Tamamla';
+            }
+        } catch (err) {
+            alert('Bir hata oluştu, lütfen tekrar deneyin.');
+            placeOrderBtn.disabled = false;
+            placeOrderBtn.textContent = 'Siparişi Tamamla';
+        }
+    });
     </script>
 </body>
 </html> 

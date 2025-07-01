@@ -59,6 +59,54 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// Sepete ekleme fonksiyonu
+async function handleAddToCart(productId) {
+    const user = localStorage.getItem('loggedInUser');
+    if (!user) {
+        window.location.href = 'pages/login.html';
+        return;
+    }
+    try {
+        const res = await fetch(`/api/cart/${encodeURIComponent(user)}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+            body: JSON.stringify({ productId })
+        });
+        if (res.ok) {
+            return true;
+        } else {
+            alert('Ürün sepete eklenemedi!');
+            return false;
+        }
+    } catch {
+        alert('Bir hata oluştu!');
+        return false;
+    }
+}
+
+// Dinamik ürün kartları için butonlara event ekle
+function setAddToCartListeners() {
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        if (button.dataset.listenerAttached) return; // Çift eklenmesin
+        button.dataset.listenerAttached = 'true';
+        button.addEventListener('click', async function() {
+            const productCard = this.closest('.product-card');
+            const productId = productCard && productCard.dataset && productCard.dataset.id;
+            if (!productId) return;
+            const success = await handleAddToCart(productId);
+            if (success) {
+                this.innerHTML = '<i class="fas fa-check"></i> Eklendi';
+                this.style.backgroundColor = '#27ae60';
+                setTimeout(() => {
+                    this.innerHTML = 'Sepete Ekle';
+                    this.style.backgroundColor = '#3498db';
+                }, 2000);
+            }
+        });
+    });
+}
+window.setAddToCartListeners = setAddToCartListeners;
+
 // Anasayfa ürünlerini veritabanından çek ve ekrana bas
 if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/' ) {
     document.addEventListener('DOMContentLoaded', () => {
@@ -71,6 +119,7 @@ if (window.location.pathname.endsWith('index.html') || window.location.pathname 
                 products.forEach(product => {
                     const div = document.createElement('div');
                     div.className = 'product-card';
+                    div.dataset.id = product._id;
                     div.innerHTML = `
                         <img src="${product.image}" alt="${product.name}">
                         <h3>${product.name}</h3>
@@ -79,6 +128,7 @@ if (window.location.pathname.endsWith('index.html') || window.location.pathname 
                     `;
                     grid.appendChild(div);
                 });
+                setAddToCartListeners();
             });
     });
 }
@@ -89,10 +139,12 @@ function updateNavForLogin() {
     if (!navLinks) return;
     const loginLink = navLinks.querySelector('a[href="pages/login.html"]');
     const registerLink = navLinks.querySelector('a[href="pages/register.html"]');
+    const ordersLink = navLinks.querySelector('#ordersLink');
     let logoutBtn = navLinks.querySelector('.logout-btn');
     if (localStorage.getItem('loggedInUser')) {
         if (loginLink) loginLink.style.display = 'none';
         if (registerLink) registerLink.style.display = 'none';
+        if (ordersLink) ordersLink.style.display = '';
         if (!logoutBtn) {
             logoutBtn = document.createElement('button');
             logoutBtn.textContent = 'Çıkış Yap';
@@ -102,6 +154,7 @@ function updateNavForLogin() {
             logoutBtn.style.cursor = 'pointer';
             logoutBtn.onclick = function() {
                 localStorage.removeItem('loggedInUser');
+                localStorage.removeItem('token');
                 location.reload();
             };
             navLinks.appendChild(logoutBtn);
@@ -109,8 +162,16 @@ function updateNavForLogin() {
     } else {
         if (loginLink) loginLink.style.display = '';
         if (registerLink) registerLink.style.display = '';
+        if (ordersLink) ordersLink.style.display = 'none';
         if (logoutBtn) logoutBtn.remove();
     }
 }
 
-document.addEventListener('DOMContentLoaded', updateNavForLogin); 
+document.addEventListener('DOMContentLoaded', updateNavForLogin);
+
+function authFetch(url, options = {}) {
+    const token = localStorage.getItem('token');
+    options.headers = options.headers || {};
+    if (token) options.headers['Authorization'] = 'Bearer ' + token;
+    return fetch(url, options);
+} 

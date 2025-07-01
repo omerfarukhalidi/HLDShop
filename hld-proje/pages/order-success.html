@@ -121,6 +121,7 @@
     <div class="success-container">
         <i class="fas fa-check-circle success-icon"></i>
         <h2 class="success-title">Siparişiniz Başarıyla Alındı!</h2>
+        <div id="userName" style="font-size:1.1rem; color:#2c3e50; margin-bottom:1rem;"></div>
         <p class="success-message">Siparişiniz başarıyla oluşturuldu. Sipariş detaylarınız aşağıda yer almaktadır.</p>
 
         <div class="order-details">
@@ -165,6 +166,16 @@
                 container.style.opacity = '1';
                 container.style.transform = 'translateY(0)';
             }, 100);
+            // Kullanıcı adını çek
+            const user = localStorage.getItem('loggedInUser');
+            const userNameDiv = document.getElementById('userName');
+            if (user) {
+                authFetch(`http://localhost:3000/api/user/${encodeURIComponent(user)}`)
+                  .then(res => res.json())
+                  .then(data => {
+                    if (data.name) userNameDiv.textContent = `Teşekkürler, ${data.name}!`;
+                  });
+            }
         });
     </script>
 </body>

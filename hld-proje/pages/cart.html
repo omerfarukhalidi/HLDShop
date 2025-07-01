@@ -119,7 +119,12 @@
             margin-top: 1rem;
         }
 
-        .checkout-btn:hover {
+        .checkout-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .checkout-btn:hover:not(:disabled) {
             background-color: #2980b9;
         }
 
@@ -149,41 +154,11 @@
     <!-- Cart Content -->
     <div class="cart-container">
         <h2>Sepetim</h2>
-        <div class="cart-items">
-            <div class="cart-item">
-                <img src="../assets/product1.jpg" alt="Ürün 1">
-                <div class="item-details">
-                    <h3>Akıllı Telefon</h3>
-                    <p class="item-price">12.999 TL</p>
-                </div>
-                <div class="quantity-controls">
-                    <button class="quantity-btn">-</button>
-                    <span>1</span>
-                    <button class="quantity-btn">+</button>
-                </div>
-                <div class="item-total">12.999 TL</div>
-                <button class="remove-btn"><i class="fas fa-trash"></i></button>
-            </div>
-            <div class="cart-item">
-                <img src="../assets/product2.jpg" alt="Ürün 2">
-                <div class="item-details">
-                    <h3>Laptop</h3>
-                    <p class="item-price">24.999 TL</p>
-                </div>
-                <div class="quantity-controls">
-                    <button class="quantity-btn">-</button>
-                    <span>1</span>
-                    <button class="quantity-btn">+</button>
-                </div>
-                <div class="item-total">24.999 TL</div>
-                <button class="remove-btn"><i class="fas fa-trash"></i></button>
-            </div>
-        </div>
-
-        <div class="cart-summary">
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-summary" id="cartSummary" style="display:none;">
             <div class="summary-row">
                 <span>Ara Toplam</span>
-                <span>37.998 TL</span>
+                <span id="subtotal">0 TL</span>
             </div>
             <div class="summary-row">
                 <span>Kargo</span>
@@ -191,60 +166,112 @@
             </div>
             <div class="summary-row total">
                 <span>Toplam</span>
-                <span>37.998 TL</span>
+                <span id="total">0 TL</span>
             </div>
-            <button class="checkout-btn">Ödemeye Geç</button>
+            <button class="checkout-btn" id="checkoutBtn">Ödemeye Geç</button>
         </div>
     </div>
 
     <script>
-        // Miktar kontrolleri
+    const user = localStorage.getItem('loggedInUser');
+    const cartItemsDiv = document.getElementById('cartItems');
+    const cartSummaryDiv = document.getElementById('cartSummary');
+    const subtotalSpan = document.getElementById('subtotal');
+    const totalSpan = document.getElementById('total');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+
+    if (!user) {
+        cartItemsDiv.innerHTML = `<div class='empty-cart'><i class='fas fa-user-lock'></i><br>Giriş yapmadan sepetinizi görüntüleyemezsiniz.</div>`;
+        cartSummaryDiv.style.display = 'none';
+    } else {
+        loadCart();
+    }
+
+    async function loadCart() {
+        cartItemsDiv.innerHTML = '<div class="empty-cart">Yükleniyor...</div>';
+        try {
+            const res = await fetch(`http://localhost:3000/api/cart/${encodeURIComponent(user)}`, { cache: 'no-store' });
+            const cart = await res.json();
+            if (!cart.length) {
+                cartItemsDiv.innerHTML = `<div class='empty-cart'><i class='fas fa-shopping-cart'></i><br>Sepetiniz boş.</div>`;
+                cartSummaryDiv.style.display = 'none';
+                return;
+            }
+            cartSummaryDiv.style.display = '';
+            cartItemsDiv.innerHTML = cart.map(item => `
+                <div class="cart-item" data-id="${item.id}">
+                    <img src="${item.image}" alt="${item.name}">
+                    <div class="item-details">
+                        <h3>${item.name}</h3>
+                        <p class="item-price">${item.price.toLocaleString('tr-TR')} TL</p>
+                    </div>
+                    <div class="quantity-controls">
+                        <button class="quantity-btn" data-action="decrease">-</button>
+                        <span>${item.quantity}</span>
+                        <button class="quantity-btn" data-action="increase">+</button>
+                    </div>
+                    <div class="item-total">${item.price.toLocaleString('tr-TR')} TL</div>
+                    <button class="remove-btn"><i class="fas fa-trash"></i></button>
+                </div>
+            `).join('');
+            updateCartTotal();
+            setCartEventListeners();
+        } catch (err) {
+            cartItemsDiv.innerHTML = `<div class='empty-cart'><i class='fas fa-exclamation-triangle'></i><br>Bir hata oluştu, lütfen tekrar deneyin.</div>`;
+            cartSummaryDiv.style.display = 'none';
+        }
+    }
+
+    function updateCartTotal() {
+        const items = document.querySelectorAll('.cart-item');
+        let total = 0;
+        items.forEach(item => {
+            const price = parseFloat(item.querySelector('.item-price').textContent.replace('TL', '').replace('.', '').replace(',', '.'));
+            const quantity = parseInt(item.querySelector('.quantity-controls span').textContent);
+            const itemTotal = price * quantity;
+            item.querySelector('.item-total').textContent = itemTotal.toLocaleString('tr-TR') + ' TL';
+            total += itemTotal;
+        });
+        subtotalSpan.textContent = total.toLocaleString('tr-TR') + ' TL';
+        totalSpan.textContent = total.toLocaleString('tr-TR') + ' TL';
+        checkoutBtn.disabled = (total === 0);
+    }
+
+    function setCartEventListeners() {
+        document.querySelectorAll('.remove-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const itemDiv = this.closest('.cart-item');
+                const productId = itemDiv.getAttribute('data-id');
+                await fetch(`http://localhost:3000/api/cart/${encodeURIComponent(user)}/${productId}`, { method: 'DELETE' });
+                loadCart();
+            });
+        });
         document.querySelectorAll('.quantity-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const quantitySpan = this.parentElement.querySelector('span');
+            btn.addEventListener('click', async function() {
+                // API'de miktar desteği yok, sadece ekle/sil var. + ile tekrar ekle, - ile sil.
+                const itemDiv = this.closest('.cart-item');
+                const productId = itemDiv.getAttribute('data-id');
+                const action = this.getAttribute('data-action');
+                let quantitySpan = itemDiv.querySelector('.quantity-controls span');
                 let quantity = parseInt(quantitySpan.textContent);
-                
-                if (this.textContent === '+') {
-                    quantity++;
-                } else if (this.textContent === '-' && quantity > 1) {
+                if (action === 'increase') {
+                    const success = await handleAddToCart(productId);
+                    if (success) {
+                        quantity++;
+                    }
+                } else if (action === 'decrease' && quantity > 1) {
+                    await fetch(`http://localhost:3000/api/cart/${encodeURIComponent(user)}/${productId}`, { method: 'DELETE' });
                     quantity--;
                 }
-                
                 quantitySpan.textContent = quantity;
-                updateItemTotal(this.closest('.cart-item'));
                 updateCartTotal();
+                loadCart(); // Güncel sepeti çek
             });
         });
-
-        // Ürün silme
-        document.querySelectorAll('.remove-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                this.closest('.cart-item').remove();
-                updateCartTotal();
-            });
-        });
-
-        // Ürün toplamını güncelle
-        function updateItemTotal(item) {
-            const price = parseFloat(item.querySelector('.item-price').textContent.replace('TL', '').trim());
-            const quantity = parseInt(item.querySelector('.quantity-controls span').textContent);
-            const total = price * quantity;
-            item.querySelector('.item-total').textContent = total.toLocaleString('tr-TR') + ' TL';
-        }
-
-        // Sepet toplamını güncelle
-        function updateCartTotal() {
-            const items = document.querySelectorAll('.cart-item');
-            let total = 0;
-            
-            items.forEach(item => {
-                const itemTotal = parseFloat(item.querySelector('.item-total').textContent.replace('TL', '').trim());
-                total += itemTotal;
-            });
-
-            document.querySelector('.summary-row.total span:last-child').textContent = 
-                total.toLocaleString('tr-TR') + ' TL';
-        }
+        checkoutBtn.onclick = function() {
+            window.location.href = '/pages/checkout.html';
+        };
+    }
     </script>
 </body>
 </html> 

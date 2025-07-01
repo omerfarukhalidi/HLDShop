@@ -169,26 +169,26 @@
     <div class="search-container">
         <div class="search-header">
             <h2>Arama Sonuçları</h2>
-            <p class="search-stats">"telefon" için 24 sonuç bulundu</p>
+            <p class="search-stats" id="searchStats"></p>
         </div>
 
         <div class="filters">
             <div class="filter-group">
                 <h3>Kategoriler</h3>
-                <div class="filter-options">
-                    <div class="filter-option active">Tümü</div>
-                    <div class="filter-option">Elektronik</div>
-                    <div class="filter-option">Telefon</div>
-                    <div class="filter-option">Aksesuar</div>
+                <div class="filter-options" id="categoryFilters">
+                    <div class="filter-option active" data-category="Tümü">Tümü</div>
+                    <div class="filter-option" data-category="Elektronik">Elektronik</div>
+                    <div class="filter-option" data-category="Telefon">Telefon</div>
+                    <div class="filter-option" data-category="Aksesuar">Aksesuar</div>
                 </div>
             </div>
             <div class="filter-group">
                 <h3>Fiyat Aralığı</h3>
-                <div class="filter-options">
-                    <div class="filter-option">0 - 1000 TL</div>
-                    <div class="filter-option">1000 - 5000 TL</div>
-                    <div class="filter-option">5000 - 10000 TL</div>
-                    <div class="filter-option">10000 TL ve üzeri</div>
+                <div class="filter-options" id="priceFilters">
+                    <div class="filter-option" data-min="0" data-max="1000">0 - 1000 TL</div>
+                    <div class="filter-option" data-min="1000" data-max="5000">1000 - 5000 TL</div>
+                    <div class="filter-option" data-min="5000" data-max="10000">5000 - 10000 TL</div>
+                    <div class="filter-option" data-min="10000" data-max="">10000 TL ve üzeri</div>
                 </div>
             </div>
             <div class="filter-group">
@@ -203,7 +203,7 @@
         </div>
 
         <div class="sort-options">
-            <select class="sort-select">
+            <select class="sort-select" id="sortSelect">
                 <option value="popular">En Popüler</option>
                 <option value="price-asc">Fiyat (Düşükten Yükseğe)</option>
                 <option value="price-desc">Fiyat (Yüksekten Düşüğe)</option>
@@ -211,80 +211,88 @@
             </select>
         </div>
 
-        <div class="search-results">
-            <div class="product-card">
-                <img src="../assets/product1.jpg" alt="Ürün 1">
-                <h3>iPhone 13 Pro</h3>
-                <p class="price">42.999 TL</p>
-                <button class="add-to-cart">Sepete Ekle</button>
-            </div>
-            <div class="product-card">
-                <img src="../assets/product2.jpg" alt="Ürün 2">
-                <h3>Samsung Galaxy S21</h3>
-                <p class="price">32.999 TL</p>
-                <button class="add-to-cart">Sepete Ekle</button>
-            </div>
-            <div class="product-card">
-                <img src="../assets/product3.jpg" alt="Ürün 3">
-                <h3>Xiaomi Mi 11</h3>
-                <p class="price">22.999 TL</p>
-                <button class="add-to-cart">Sepete Ekle</button>
-            </div>
-            <div class="product-card">
-                <img src="../assets/product4.jpg" alt="Ürün 4">
-                <h3>Huawei P40 Pro</h3>
-                <p class="price">28.999 TL</p>
-                <button class="add-to-cart">Sepete Ekle</button>
-            </div>
-        </div>
+        <div class="search-results" id="searchResults"></div>
     </div>
 
     <script>
-        // Filtre seçenekleri
-        document.querySelectorAll('.filter-option').forEach(option => {
-            option.addEventListener('click', function() {
-                const parent = this.parentElement;
-                parent.querySelectorAll('.filter-option').forEach(opt => {
-                    opt.classList.remove('active');
-                });
-                this.classList.add('active');
-            });
-        });
+    // Dinamik arama ve filtreleme
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialQuery = urlParams.get('q') || '';
+    let selectedCategory = 'Tümü';
+    let minPrice = '';
+    let maxPrice = '';
+    let sort = 'popular';
 
-        // Sıralama değişikliği
-        document.querySelector('.sort-select').addEventListener('change', function() {
-            // Demo amaçlı alert
-            alert(`Sıralama değiştirildi: ${this.value}`);
-        });
+    async function fetchAndRenderProducts() {
+        let apiUrl = `http://localhost:3000/api/products/search?name=${encodeURIComponent(initialQuery)}`;
+        if (selectedCategory && selectedCategory !== 'Tümü') apiUrl += `&category=${encodeURIComponent(selectedCategory)}`;
+        if (minPrice) apiUrl += `&minPrice=${minPrice}`;
+        if (maxPrice) apiUrl += `&maxPrice=${maxPrice}`;
+        const res = await fetch(apiUrl);
+        let products = await res.json();
+        // Sıralama
+        if (sort === 'price-asc') products.sort((a, b) => a.price - b.price);
+        if (sort === 'price-desc') products.sort((a, b) => b.price - a.price);
+        if (sort === 'new') products.sort((a, b) => b._id.localeCompare(a._id));
+        renderProducts(products);
+    }
 
-        // Sepete ekleme
+    function renderProducts(products) {
+        const resultsDiv = document.getElementById('searchResults');
+        const statsDiv = document.getElementById('searchStats');
+        if (!products.length) {
+            resultsDiv.innerHTML = `<div class='no-results'><i class='fas fa-search'></i><br>Sonuç bulunamadı.</div>`;
+            statsDiv.textContent = '';
+            return;
+        }
+        resultsDiv.innerHTML = products.map(product => `
+            <div class="product-card">
+                <img src="${product.image}" alt="${product.name}">
+                <h3>${product.name}</h3>
+                <p class="price">${product.price.toLocaleString('tr-TR')} TL</p>
+                <button class="add-to-cart">Sepete Ekle</button>
+            </div>
+        `).join('');
+        statsDiv.textContent = `"${initialQuery}" için ${products.length} sonuç bulundu`;
+        // Sepete ekleme animasyonu
         document.querySelectorAll('.add-to-cart').forEach(button => {
             button.addEventListener('click', function() {
-                const productName = this.closest('.product-card').querySelector('h3').textContent;
                 this.innerHTML = '<i class="fas fa-check"></i> Eklendi';
                 this.style.backgroundColor = '#27ae60';
-                
                 setTimeout(() => {
                     this.innerHTML = 'Sepete Ekle';
                     this.style.backgroundColor = '#3498db';
                 }, 2000);
             });
         });
+    }
 
-        // Sayfa yüklendiğinde animasyon
-        document.addEventListener('DOMContentLoaded', () => {
-            const cards = document.querySelectorAll('.product-card');
-            cards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-                
-                setTimeout(() => {
-                    card.style.transition = 'all 0.5s ease';
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 100);
-            });
+    // Kategori filtreleri
+    document.querySelectorAll('#categoryFilters .filter-option').forEach(option => {
+        option.addEventListener('click', function() {
+            document.querySelectorAll('#categoryFilters .filter-option').forEach(opt => opt.classList.remove('active'));
+            this.classList.add('active');
+            selectedCategory = this.getAttribute('data-category');
+            fetchAndRenderProducts();
         });
+    });
+    // Fiyat filtreleri
+    document.querySelectorAll('#priceFilters .filter-option').forEach(option => {
+        option.addEventListener('click', function() {
+            document.querySelectorAll('#priceFilters .filter-option').forEach(opt => opt.classList.remove('active'));
+            this.classList.add('active');
+            minPrice = this.getAttribute('data-min');
+            maxPrice = this.getAttribute('data-max');
+            fetchAndRenderProducts();
+        });
+    });
+    // Sıralama
+    document.getElementById('sortSelect').addEventListener('change', function() {
+        sort = this.value;
+        fetchAndRenderProducts();
+    });
+    // Sayfa yüklenince başlat
+    fetchAndRenderProducts();
     </script>
 </body>
 </html> 
