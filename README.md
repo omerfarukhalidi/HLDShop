@@ -3,5 +3,5 @@
 ## [DURUM DİYAGRAMI](Durumdiyagramı.md)
 ## [DURUM SENARYOLARI](Durumsenaryoları.pdf)
 ## [FRONTEND](Frontend.md)
-## [BACKEND](Backend.md)
+## [BACKEND](hld-proje/backend)
 ## [VİDEO SUNUM](Sunum.md)
